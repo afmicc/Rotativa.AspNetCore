@@ -1,8 +1,11 @@
-﻿namespace Rotativa.AspNetCore
+﻿using System.Runtime.InteropServices;
+
+namespace Rotativa.AspNetCore
 {
     public class WkhtmltopdfDriver : WkhtmlDriver
     {
         private const string wkhtmlExe = "wkhtmltopdf.exe";
+        private const string wkhtmlLinuxCommand = "wkhtmltopdf";
 
         /// <summary>
         /// Converts given HTML string to PDF.
@@ -13,7 +16,13 @@
         /// <returns>PDF as byte array.</returns>
         public static byte[] ConvertHtml(string wkhtmltopdfPath, string switches, string html)
         {
-            return Convert(wkhtmltopdfPath, switches, html, wkhtmlExe);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return ConvertOnWindows(wkhtmltopdfPath, switches, html, wkhtmlExe);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return ConvertOnLinux(wkhtmltopdfPath, switches, html, wkhtmlLinuxCommand);
+
+            throw new System.PlatformNotSupportedException();
         }
 
         /// <summary>
@@ -24,7 +33,13 @@
         /// <returns>PDF as byte array.</returns>
         public static byte[] Convert(string wkhtmltopdfPath, string switches)
         {
-            return Convert(wkhtmltopdfPath, switches, null, wkhtmlExe);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return ConvertOnWindows(wkhtmltopdfPath, switches, null, wkhtmlExe);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return ConvertOnLinux(wkhtmlLinuxCommand, switches, null, wkhtmlLinuxCommand);
+
+            throw new System.PlatformNotSupportedException();
         }
     }
 }

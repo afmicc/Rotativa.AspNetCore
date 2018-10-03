@@ -8,14 +8,41 @@ namespace Rotativa.AspNetCore
     public abstract class WkhtmlDriver
     {
         /// <summary>
+        /// Converts given URL or HTML string to PDF on linux platform.
+        /// </summary>
+        /// <param name="wkhtmlPath">Path to wkthmltopdf\wkthmltoimage.</param>
+        /// <param name="switches">Switches that will be passed to wkhtmltopdf binary.</param>
+        /// <param name="html">String containing HTML code that should be converted to PDF.</param>
+        /// <param name="command">command to execute wkhtml on linux</param>
+        /// <returns>PDF as byte array.</returns>
+        protected static byte[] ConvertOnLinux(string wkhtmlPath, string switches, string html, string command)
+        {
+            return Convert(wkhtmlPath, switches, html, command);
+        }
+
+        /// <summary>
+        /// Converts given URL or HTML string to PDF on windows platform.
+        /// </summary>
+        /// <param name="wkhtmlPath">Path to wkthmltopdf\wkthmltoimage.</param>
+        /// <param name="switches">Switches that will be passed to wkhtmltopdf binary.</param>
+        /// <param name="html">String containing HTML code that should be converted to PDF.</param>
+        /// <param name="wkhtmlExe">file name of wkhtml on windows</param>
+        /// <returns>PDF as byte array.</returns>
+        protected static byte[] ConvertOnWindows(string wkhtmlPath, string switches, string html, string wkhtmlExe)
+        {
+            var exeFullPath = Path.Combine(wkhtmlPath, wkhtmlExe);
+            return Convert(wkhtmlPath, switches, html, exeFullPath);
+        }
+
+        /// <summary>
         /// Converts given URL or HTML string to PDF.
         /// </summary>
         /// <param name="wkhtmlPath">Path to wkthmltopdf\wkthmltoimage.</param>
         /// <param name="switches">Switches that will be passed to wkhtmltopdf binary.</param>
         /// <param name="html">String containing HTML code that should be converted to PDF.</param>
-        /// <param name="wkhtmlExe"></param>
+        /// <param name="wkhtmlExeOrCommand"></param>
         /// <returns>PDF as byte array.</returns>
-        protected static byte[] Convert(string wkhtmlPath, string switches, string html, string wkhtmlExe)
+        protected static byte[] Convert(string wkhtmlPath, string switches, string html, string wkhtmlExeOrCommand)
         {
             // switches:
             //     "-q"  - silent output, only errors - no progress messages
@@ -34,7 +61,7 @@ namespace Rotativa.AspNetCore
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(wkhtmlPath, wkhtmlExe),
+                    FileName = wkhtmlExeOrCommand,
                     Arguments = switches,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
